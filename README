@@ -1,0 +1,35 @@
+
+SunSpec library - Provides interface to interface to SunSpec devices
+====================================================================
+
+Before building, the SMDX model directory path should be updated in include/sunspec_config.h.
+
+The directory of model definitions in test/models/smdx can be used in place or copied to another
+location in the system.
+
+A model definition is required for any model that is desired to be supported.
+
+Build Library
+=============
+
+> make
+
+The library libsunspec.a is created in the /lib directory.
+
+Run Unit Tests
+==============
+
+> make test
+
+All tests should pass. Results are at the end of the test output.
+
+Notes
+=====
+
+Currently the library only supports the CEA-2045 link layer interface and expects to be linked with a
+module that implements the following functions:
+
+uint16_t cea2045_flush(bool txBufClear, bool rxBufClear, bool force);
+int16_t CEA2045ss_read(unsigned char *buf, uint16_t len, uint32_t timeout);
+int16_t CEA2045ss_write(unsigned char *buf, uint16_t len, uint32_t timeout);
+
