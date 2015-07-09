@@ -36,11 +36,10 @@ test_inv_volt_watt(CuTest* tc)
 {
     suns_device_t *device;
     suns_err_t err;
-    uint16_t mod_ena;
-    uint16_t act_crv;
     inv_volt_watt_curve_t curve;
     inv_volt_watt_curve_t curve_1;
     uint16_t i;
+    inv_mod_t mod;
 
     /* allocate device */
     device = suns_device_alloc();
@@ -57,24 +56,24 @@ test_inv_volt_watt(CuTest* tc)
     /* volt watt get status */
     printf("\nvolt watt get status:\n");
 
-    err = inv_volt_watt_get_status(device, &mod_ena, &act_crv);
+    err = inv_volt_watt_get_status(device, &mod);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
-    printf("mod_ena = %d  act_crv = %d\n", mod_ena, act_crv);
+    printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     /* volt watt enable curve 2 */
     printf("\nvolt watt enable curve 2\n");
 
-    err = inv_volt_watt_enable(device, 2, 0);
+    err = inv_volt_watt_enable(device, 2, NULL);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
 
     /* volt watt get status */
     printf("\nvolt watt get status:\n");
 
-    err = inv_volt_watt_get_status(device, &mod_ena, &act_crv);
+    err = inv_volt_watt_get_status(device, &mod);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
-    CuAssertTrue(tc, mod_ena == 1);
-    CuAssertTrue(tc, act_crv == 2);
-    printf("mod_ena = %d  act_crv = %d\n", mod_ena, act_crv);
+    CuAssertTrue(tc, mod.mod_ena == 1);
+    CuAssertTrue(tc, mod.act_crv == 2);
+    printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     /* volt watt get curve 1 */
     printf("\nvolt watt get curve 1:\n");
@@ -156,10 +155,10 @@ test_inv_volt_watt(CuTest* tc)
     /* volt watt get status */
     printf("\nvolt watt get status:\n");
 
-    err = inv_volt_watt_get_status(device, &mod_ena, &act_crv);
+    err = inv_volt_watt_get_status(device, &mod);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
-    CuAssertTrue(tc, mod_ena == 0);
-    printf("mod_ena = %d  act_crv = %d\n", mod_ena, act_crv);
+    CuAssertTrue(tc, mod.mod_ena == 0);
+    printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     suns_device_free(device);
 }
@@ -169,11 +168,10 @@ test_inv_freq_watt(CuTest* tc)
 {
     suns_device_t *device;
     suns_err_t err;
-    uint16_t mod_ena;
-    uint16_t act_crv;
     inv_freq_watt_curve_t curve;
     inv_freq_watt_curve_t curve_1;
     uint16_t i;
+    inv_mod_t mod;
 
     /* allocate device */
     device = suns_device_alloc();
@@ -190,24 +188,24 @@ test_inv_freq_watt(CuTest* tc)
     /* freq watt get status */
     printf("\nfreq watt get status:\n");
 
-    err = inv_freq_watt_get_status(device, &mod_ena, &act_crv);
+    err = inv_freq_watt_get_status(device, &mod);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
-    printf("mod_ena = %d  act_crv = %d\n", mod_ena, act_crv);
+    printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     /* freq watt enable curve 2 */
     printf("\nfreq watt enable curve 2\n");
 
-    err = inv_freq_watt_enable(device, 2, 0);
+    err = inv_freq_watt_enable(device, 2, NULL);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
 
     /* freq watt get status */
     printf("\nfreq watt get status:\n");
 
-    err = inv_freq_watt_get_status(device, &mod_ena, &act_crv);
+    err = inv_freq_watt_get_status(device, &mod);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
-    CuAssertTrue(tc, mod_ena == 1);
-    CuAssertTrue(tc, act_crv == 2);
-    printf("mod_ena = %d  act_crv = %d\n", mod_ena, act_crv);
+    CuAssertTrue(tc, mod.mod_ena == 1);
+    CuAssertTrue(tc, mod.act_crv == 2);
+    printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     /* freq watt get curve 1 */
     printf("\nfreq watt get curve 1:\n");
@@ -291,10 +289,10 @@ test_inv_freq_watt(CuTest* tc)
     /* freq watt get status */
     printf("\nfreq watt get status:\n");
 
-    err = inv_freq_watt_get_status(device, &mod_ena, &act_crv);
+    err = inv_freq_watt_get_status(device, &mod);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
-    CuAssertTrue(tc, mod_ena == 0);
-    printf("mod_ena = %d  act_crv = %d\n", mod_ena, act_crv);
+    CuAssertTrue(tc, mod.mod_ena == 0);
+    printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     suns_device_free(device);
 }
@@ -304,11 +302,10 @@ test_inv_volt_var(CuTest* tc)
 {
     suns_device_t *device;
     suns_err_t err;
-    uint16_t mod_ena;
-    uint16_t act_crv;
     inv_volt_var_curve_t curve;
     inv_volt_var_curve_t curve_1;
     uint16_t i;
+    inv_mod_t mod;
 
     /* allocate device */
     device = suns_device_alloc();
@@ -325,24 +322,24 @@ test_inv_volt_var(CuTest* tc)
     /* volt var get status */
     printf("\nvolt var get status:\n");
 
-    err = inv_volt_var_get_status(device, &mod_ena, &act_crv);
+    err = inv_volt_var_get_status(device, &mod);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
-    printf("mod_ena = %d  act_crv = %d\n", mod_ena, act_crv);
+    printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     /* volt var enable curve 2 */
     printf("\nvolt var enable curve 2\n");
 
-    err = inv_volt_var_enable(device, 2, 0);
+    err = inv_volt_var_enable(device, 2, NULL);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
 
     /* volt var get status */
     printf("\nvolt var get status:\n");
 
-    err = inv_volt_var_get_status(device, &mod_ena, &act_crv);
+    err = inv_volt_var_get_status(device, &mod);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
-    CuAssertTrue(tc, mod_ena == 1);
-    CuAssertTrue(tc, act_crv == 2);
-    printf("mod_ena = %d  act_crv = %d\n", mod_ena, act_crv);
+    CuAssertTrue(tc, mod.mod_ena == 1);
+    CuAssertTrue(tc, mod.act_crv == 2);
+    printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     /* volt var get curve 1 */
     printf("\nvolt var get curve 1:\n");
@@ -428,10 +425,10 @@ test_inv_volt_var(CuTest* tc)
     /* volt var get status */
     printf("\nvolt var get status:\n");
 
-    err = inv_volt_var_get_status(device, &mod_ena, &act_crv);
+    err = inv_volt_var_get_status(device, &mod);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
-    CuAssertTrue(tc, mod_ena == 0);
-    printf("mod_ena = %d  act_crv = %d\n", mod_ena, act_crv);
+    CuAssertTrue(tc, mod.mod_ena == 0);
+    printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     suns_device_free(device);
 }
@@ -484,32 +481,32 @@ test_inv(CuTest* tc)
     CuAssertTrue(tc, err == SUNS_ERR_OK);
     printf("enabled = %d\n", fixed_pf.enabled);
     printf("pf = %f\n", fixed_pf.pf);
-    printf("win_tms_valid = %d\n", fixed_pf.win_tms_valid);
-    printf("win_tms = %d\n", fixed_pf.win_tms);
-    printf("rvrt_tms_valid = %d\n", fixed_pf.rvrt_tms_valid);
-    printf("rvrt_tms = %d\n", fixed_pf.rvrt_tms);
-    printf("rmp_tms_valid = %d\n", fixed_pf.rmp_tms_valid);
-    printf("rmp_tms = %d\n", fixed_pf.rmp_tms);
+    printf("win_tms_valid = %d\n", fixed_pf.timers.win_tms_valid);
+    printf("win_tms = %d\n", fixed_pf.timers.win_tms);
+    printf("rvrt_tms_valid = %d\n", fixed_pf.timers.rvrt_tms_valid);
+    printf("rvrt_tms = %d\n", fixed_pf.timers.rvrt_tms);
+    printf("rmp_tms_valid = %d\n", fixed_pf.timers.rmp_tms_valid);
+    printf("rmp_tms = %d\n", fixed_pf.timers.rmp_tms);
 
     fixed_pf.enabled = 1;
     fixed_pf.pf = .888;
-    fixed_pf.win_tms_valid = 1;
-    fixed_pf.win_tms = 10;
-    fixed_pf.rvrt_tms_valid = 1;
-    fixed_pf.rvrt_tms = 20;
-    fixed_pf.rmp_tms_valid = 1;
-    fixed_pf.rmp_tms = 30;
+    fixed_pf.timers.win_tms_valid = 1;
+    fixed_pf.timers.win_tms = 10;
+    fixed_pf.timers.rvrt_tms_valid = 1;
+    fixed_pf.timers.rvrt_tms = 20;
+    fixed_pf.timers.rmp_tms_valid = 1;
+    fixed_pf.timers.rmp_tms = 30;
 
     /* set fixed power factor */
     printf("\nset and enable fixed power factor:\n");
     printf("enabled = %d\n", fixed_pf.enabled);
     printf("pf = %f\n", fixed_pf.pf);
-    printf("win_tms_valid = %d\n", fixed_pf.win_tms_valid);
-    printf("win_tms = %d\n", fixed_pf.win_tms);
-    printf("rvrt_tms_valid = %d\n", fixed_pf.rvrt_tms_valid);
-    printf("rvrt_tms = %d\n", fixed_pf.rvrt_tms);
-    printf("rmp_tms_valid = %d\n", fixed_pf.rmp_tms_valid);
-    printf("rmp_tms = %d\n", fixed_pf.rmp_tms);
+    printf("win_tms_valid = %d\n", fixed_pf.timers.win_tms_valid);
+    printf("win_tms = %d\n", fixed_pf.timers.win_tms);
+    printf("rvrt_tms_valid = %d\n", fixed_pf.timers.rvrt_tms_valid);
+    printf("rvrt_tms = %d\n", fixed_pf.timers.rvrt_tms);
+    printf("rmp_tms_valid = %d\n", fixed_pf.timers.rmp_tms_valid);
+    printf("rmp_tms = %d\n", fixed_pf.timers.rmp_tms);
 
     err = inv_set_fixed_pf(device, &fixed_pf);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
@@ -522,20 +519,20 @@ test_inv(CuTest* tc)
     CuAssertTrue(tc, err == SUNS_ERR_OK);
     printf("enabled = %d\n", fixed_pf.enabled);
     printf("pf = %f\n", fixed_pf.pf);
-    printf("win_tms_valid = %d\n", fixed_pf.win_tms_valid);
-    printf("win_tms = %d\n", fixed_pf.win_tms);
-    printf("rvrt_tms_valid = %d\n", fixed_pf.rvrt_tms_valid);
-    printf("rvrt_tms = %d\n", fixed_pf.rvrt_tms);
-    printf("rmp_tms_valid = %d\n", fixed_pf.rmp_tms_valid);
-    printf("rmp_tms = %d\n", fixed_pf.rmp_tms);
+    printf("win_tms_valid = %d\n", fixed_pf.timers.win_tms_valid);
+    printf("win_tms = %d\n", fixed_pf.timers.win_tms);
+    printf("rvrt_tms_valid = %d\n", fixed_pf.timers.rvrt_tms_valid);
+    printf("rvrt_tms = %d\n", fixed_pf.timers.rvrt_tms);
+    printf("rmp_tms_valid = %d\n", fixed_pf.timers.rmp_tms_valid);
+    printf("rmp_tms = %d\n", fixed_pf.timers.rmp_tms);
     CuAssertTrue(tc, fixed_pf.enabled == 1);
     CuAssertTrue(tc, (fixed_pf.pf > .887) && (fixed_pf.pf < .889));
-    CuAssertTrue(tc, fixed_pf.win_tms_valid == 1);
-    CuAssertTrue(tc, fixed_pf.win_tms == 10);
-    CuAssertTrue(tc, fixed_pf.rvrt_tms_valid == 1);
-    CuAssertTrue(tc, fixed_pf.rvrt_tms == 20);
-    CuAssertTrue(tc, fixed_pf.rmp_tms_valid == 1);
-    CuAssertTrue(tc, fixed_pf.rmp_tms == 30);
+    CuAssertTrue(tc, fixed_pf.timers.win_tms_valid == 1);
+    CuAssertTrue(tc, fixed_pf.timers.win_tms == 10);
+    CuAssertTrue(tc, fixed_pf.timers.rvrt_tms_valid == 1);
+    CuAssertTrue(tc, fixed_pf.timers.rvrt_tms == 20);
+    CuAssertTrue(tc, fixed_pf.timers.rmp_tms_valid == 1);
+    CuAssertTrue(tc, fixed_pf.timers.rmp_tms == 30);
 
     /* get max power */
     printf("\nget max power:\n");
@@ -545,32 +542,32 @@ test_inv(CuTest* tc)
     CuAssertTrue(tc, err == SUNS_ERR_OK);
     printf("enabled = %d\n", max_power.enabled);
     printf("power = %d\n", max_power.power);
-    printf("win_tms_valid = %d\n", max_power.win_tms_valid);
-    printf("win_tms = %d\n", max_power.win_tms);
-    printf("rvrt_tms_valid = %d\n", max_power.rvrt_tms_valid);
-    printf("rvrt_tms = %d\n", max_power.rvrt_tms);
-    printf("rmp_tms_valid = %d\n", max_power.rmp_tms_valid);
-    printf("rmp_tms = %d\n", max_power.rmp_tms);
+    printf("win_tms_valid = %d\n", max_power.timers.win_tms_valid);
+    printf("win_tms = %d\n", max_power.timers.win_tms);
+    printf("rvrt_tms_valid = %d\n", max_power.timers.rvrt_tms_valid);
+    printf("rvrt_tms = %d\n", max_power.timers.rvrt_tms);
+    printf("rmp_tms_valid = %d\n", max_power.timers.rmp_tms_valid);
+    printf("rmp_tms = %d\n", max_power.timers.rmp_tms);
 
     max_power.enabled = 1;
     max_power.power = 75;
-    max_power.win_tms_valid = 1;
-    max_power.win_tms = 40;
-    max_power.rvrt_tms_valid = 1;
-    max_power.rvrt_tms = 50;
-    max_power.rmp_tms_valid = 1;
-    max_power.rmp_tms = 60;
+    max_power.timers.win_tms_valid = 1;
+    max_power.timers.win_tms = 40;
+    max_power.timers.rvrt_tms_valid = 1;
+    max_power.timers.rvrt_tms = 50;
+    max_power.timers.rmp_tms_valid = 1;
+    max_power.timers.rmp_tms = 60;
 
     /* set max power */
     printf("\nset and enable max power:\n");
     printf("enabled = %d\n", max_power.enabled);
     printf("power = %d\n", max_power.power);
-    printf("win_tms_valid = %d\n", max_power.win_tms_valid);
-    printf("win_tms = %d\n", max_power.win_tms);
-    printf("rvrt_tms_valid = %d\n", max_power.rvrt_tms_valid);
-    printf("rvrt_tms = %d\n", max_power.rvrt_tms);
-    printf("rmp_tms_valid = %d\n", max_power.rmp_tms_valid);
-    printf("rmp_tms = %d\n", max_power.rmp_tms);
+    printf("win_tms_valid = %d\n", max_power.timers.win_tms_valid);
+    printf("win_tms = %d\n", max_power.timers.win_tms);
+    printf("rvrt_tms_valid = %d\n", max_power.timers.rvrt_tms_valid);
+    printf("rvrt_tms = %d\n", max_power.timers.rvrt_tms);
+    printf("rmp_tms_valid = %d\n", max_power.timers.rmp_tms_valid);
+    printf("rmp_tms = %d\n", max_power.timers.rmp_tms);
 
     err = inv_set_max_power(device, &max_power);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
@@ -583,20 +580,20 @@ test_inv(CuTest* tc)
     CuAssertTrue(tc, err == SUNS_ERR_OK);
     printf("enabled = %d\n", max_power.enabled);
     printf("power = %d\n", max_power.power);
-    printf("win_tms_valid = %d\n", max_power.win_tms_valid);
-    printf("win_tms = %d\n", max_power.win_tms);
-    printf("rvrt_tms_valid = %d\n", max_power.rvrt_tms_valid);
-    printf("rvrt_tms = %d\n", max_power.rvrt_tms);
-    printf("rmp_tms_valid = %d\n", max_power.rmp_tms_valid);
-    printf("rmp_tms = %d\n", max_power.rmp_tms);
+    printf("win_tms_valid = %d\n", max_power.timers.win_tms_valid);
+    printf("win_tms = %d\n", max_power.timers.win_tms);
+    printf("rvrt_tms_valid = %d\n", max_power.timers.rvrt_tms_valid);
+    printf("rvrt_tms = %d\n", max_power.timers.rvrt_tms);
+    printf("rmp_tms_valid = %d\n", max_power.timers.rmp_tms_valid);
+    printf("rmp_tms = %d\n", max_power.timers.rmp_tms);
     CuAssertTrue(tc, max_power.enabled == 1);
     CuAssertTrue(tc, max_power.power == 75);
-    CuAssertTrue(tc, max_power.win_tms_valid == 1);
-    CuAssertTrue(tc, max_power.win_tms == 40);
-    CuAssertTrue(tc, max_power.rvrt_tms_valid == 1);
-    CuAssertTrue(tc, max_power.rvrt_tms == 50);
-    CuAssertTrue(tc, max_power.rmp_tms_valid == 1);
-    CuAssertTrue(tc, max_power.rmp_tms == 60);
+    CuAssertTrue(tc, max_power.timers.win_tms_valid == 1);
+    CuAssertTrue(tc, max_power.timers.win_tms == 40);
+    CuAssertTrue(tc, max_power.timers.rvrt_tms_valid == 1);
+    CuAssertTrue(tc, max_power.timers.rvrt_tms == 50);
+    CuAssertTrue(tc, max_power.timers.rmp_tms_valid == 1);
+    CuAssertTrue(tc, max_power.timers.rmp_tms == 60);
 
     /* get connect */
     printf("\nget connect:\n");
@@ -604,18 +601,18 @@ test_inv(CuTest* tc)
     err = inv_get_connect(device, &connect);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
     printf("conn = %d\n", connect.conn);
-    printf("win_tms_valid = %d\n", max_power.win_tms_valid);
-    printf("win_tms = %d\n", max_power.win_tms);
-    printf("rvrt_tms_valid = %d\n", max_power.rvrt_tms_valid);
-    printf("rvrt_tms = %d\n", max_power.rvrt_tms);
+    printf("win_tms_valid = %d\n", max_power.timers.win_tms_valid);
+    printf("win_tms = %d\n", max_power.timers.win_tms);
+    printf("rvrt_tms_valid = %d\n", max_power.timers.rvrt_tms_valid);
+    printf("rvrt_tms = %d\n", max_power.timers.rvrt_tms);
 
     printf("\ndisconnect (set conn to 0)\n");
 
     connect.conn = 0;
-    connect.win_tms_valid = 1;
-    connect.win_tms = 40;
-    connect.rvrt_tms_valid = 1;
-    connect.rvrt_tms = 50;
+    connect.timers.win_tms_valid = 1;
+    connect.timers.win_tms = 40;
+    connect.timers.rvrt_tms_valid = 1;
+    connect.timers.rvrt_tms = 50;
 
     err = inv_set_connect(device, &connect);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
@@ -626,15 +623,15 @@ test_inv(CuTest* tc)
     err = inv_get_connect(device, &connect);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
     printf("conn = %d\n", connect.conn);
-    printf("win_tms_valid = %d\n", max_power.win_tms_valid);
-    printf("win_tms = %d\n", max_power.win_tms);
-    printf("rvrt_tms_valid = %d\n", max_power.rvrt_tms_valid);
-    printf("rvrt_tms = %d\n", max_power.rvrt_tms);
+    printf("win_tms_valid = %d\n", max_power.timers.win_tms_valid);
+    printf("win_tms = %d\n", max_power.timers.win_tms);
+    printf("rvrt_tms_valid = %d\n", max_power.timers.rvrt_tms_valid);
+    printf("rvrt_tms = %d\n", max_power.timers.rvrt_tms);
     CuAssertTrue(tc, connect.conn == 0);
-    CuAssertTrue(tc, connect.win_tms_valid == 1);
-    CuAssertTrue(tc, connect.win_tms == 40);
-    CuAssertTrue(tc, connect.rvrt_tms_valid == 1);
-    CuAssertTrue(tc, connect.rvrt_tms == 50);
+    CuAssertTrue(tc, connect.timers.win_tms_valid == 1);
+    CuAssertTrue(tc, connect.timers.win_tms == 40);
+    CuAssertTrue(tc, connect.timers.rvrt_tms_valid == 1);
+    CuAssertTrue(tc, connect.timers.rvrt_tms == 50);
 
     /* get status */
     printf("\nget status:\n");

@@ -48,7 +48,7 @@ inv_mod_disable(suns_device_t *device, char *name)
 }
 
 suns_err_t
-inv_mod_get_status(suns_device_t *device, char *name, uint16_t *mod_ena, uint16_t *act_crv)
+inv_mod_get_status(suns_device_t *device, char *name, inv_mod_t *mod)
 {
     suns_err_t err = SUNS_ERR_NOT_FOUND;
     suns_model_t *model;
@@ -59,11 +59,52 @@ inv_mod_get_status(suns_device_t *device, char *name, uint16_t *mod_ena, uint16_
         /* read current volt var model values */
         if ((err = suns_model_read(model)) == SUNS_ERR_OK) {
             /* get volt var module enabled */
-            if ((err = suns_model_point_get_uint16(model, "ModEna", 0, mod_ena, &sf)) != SUNS_ERR_OK) {
+            if (((err = suns_model_point_get_uint16(model, "ModEna", 0, &mod->mod_ena, &sf)) != SUNS_ERR_OK) ||
+                ((err = suns_model_point_get_uint16(model, "ActCrv", 0, &mod->act_crv, &sf))  != SUNS_ERR_OK) ||
+                ((err = suns_model_point_get_uint16(model, "NCrv", 0, &mod->n_crv, &sf)) != SUNS_ERR_OK) ||
+                ((err = suns_model_point_get_uint16(model, "NPt", 0, &mod->n_pt, &sf)) != SUNS_ERR_OK)) {
                 return err;
             }
-            /* get volt var active curve */
-            err = suns_model_point_get_uint16(model, "ActCrv", 0, act_crv, &sf);
+        }
+
+        /* get timers */
+        mod->timers.win_tms_valid = suns_model_point_is_implemented(model, "WinTms", 0);
+        mod->timers.rvrt_tms_valid = suns_model_point_is_implemented(model, "RvrtTms", 0);
+        mod->timers.rmp_tms_valid = suns_model_point_is_implemented(model, "RmpTms", 0);
+        if (mod->timers.win_tms_valid) {
+            if ((err = suns_model_point_get_uint16(model, "WinTms", 0, &mod->timers.win_tms, NULL)) != SUNS_ERR_OK) {
+                return err;
+            }
+        }
+        if (mod->timers.rvrt_tms_valid) {
+            if ((err = suns_model_point_get_uint16(model, "RvrtTms", 0, &mod->timers.rvrt_tms, NULL)) != SUNS_ERR_OK) {
+                return err;
+            }
+        }
+        if (mod->timers.rmp_tms_valid) {
+            if ((err = suns_model_point_get_uint16(model, "RmpTms", 0, &mod->timers.rmp_tms, NULL)) != SUNS_ERR_OK) {
+                return err;
+            }
+        }
+    }
+
+    return err;
+}
+
+suns_err_t
+inv_mod_set_timers(suns_model_t *model, inv_timers_t *timers)
+{
+    suns_err_t err = SUNS_ERR_OK;
+
+    if (timers) {
+        if ((timers->win_tms_valid != 0) && (err = suns_model_point_set_uint16(model, "WinTms", 0, timers->win_tms, 0)) != SUNS_ERR_OK) {
+            return err;
+        }
+        if ((timers->rmp_tms_valid != 0) && (err = suns_model_point_set_uint16(model, "RmpTms", 0, timers->rmp_tms, 0)) != SUNS_ERR_OK) {
+            return err;
+        }
+        if ((timers->rvrt_tms_valid != 0) && (err = suns_model_point_set_uint16(model, "RvrtTms", 0, timers->rvrt_tms, 0)) != SUNS_ERR_OK) {
+            return err;
         }
     }
 
@@ -77,7 +118,7 @@ inv_volt_var_disable(suns_device_t *device)
 }
 
 suns_err_t
-inv_volt_var_enable(suns_device_t *device, uint16_t act_crv, uint16_t rvrt_tms)
+inv_volt_var_enable(suns_device_t *device, uint16_t act_crv, inv_timers_t *timers)
 {
     suns_err_t err = SUNS_ERR_NOT_FOUND;
     suns_model_t *model;
@@ -100,7 +141,8 @@ inv_volt_var_enable(suns_device_t *device, uint16_t act_crv, uint16_t rvrt_tms)
             if ((err = suns_model_point_set_uint16(model, "ActCrv", 0, act_crv, 0)) != SUNS_ERR_OK) {
                 return err;
             }
-            if ((rvrt_tms != 0) && (err = suns_model_point_set_uint16(model, "RvrtTms", 0, rvrt_tms, 0)) != SUNS_ERR_OK) {
+            /* set timers */
+            if ((err = inv_mod_set_timers(model, timers)) != SUNS_ERR_OK) {
                 return err;
             }
             /* write model changes to device */
@@ -122,9 +164,9 @@ inv_volt_var_enable(suns_device_t *device, uint16_t act_crv, uint16_t rvrt_tms)
 }
 
 suns_err_t
-inv_volt_var_get_status(suns_device_t *device, uint16_t *mod_ena, uint16_t *act_crv)
+inv_volt_var_get_status(suns_device_t *device, inv_mod_t *mod)
 {
-    return inv_mod_get_status(device, "volt_var", mod_ena, act_crv);
+    return inv_mod_get_status(device, "volt_var", mod);
 }
 
 suns_err_t
@@ -137,6 +179,7 @@ inv_volt_var_get_curve(suns_device_t *device, uint16_t index, inv_volt_var_curve
     int16_t sf;
     uint16_t i;
     char point_name[16];
+    char *nam_str = NULL;
 
     model = suns_device_get_model(device, 0, "volt_var", 1);
     if (model) {
@@ -167,6 +210,35 @@ inv_volt_var_get_curve(suns_device_t *device, uint16_t index, inv_volt_var_curve
             curve->points = npt;
             /* get volt var active curve */
             err = suns_model_point_get_uint16(model, "DeptRef", index, &curve->dept_ref, &sf);
+
+            /* get timers */
+            curve->rmp_tms_valid = suns_model_point_is_implemented(model, "RmpTms", 0);
+            curve->rmp_dec_tmm_valid = suns_model_point_is_implemented(model, "RmpDecTmm", 0);
+            curve->rmp_inc_tmm_valid = suns_model_point_is_implemented(model, "RmpIncTmm", 0);
+            if (curve->rmp_tms_valid) {
+                if ((err = suns_model_point_get_uint16(model, "RmpTms", index, &curve->rmp_tms, NULL)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+            if (curve->rmp_dec_tmm_valid) {
+                if ((err = suns_model_point_get_float32(model, "RmpDecTmm", index, &curve->rmp_dec_tmm)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+            if (curve->rmp_inc_tmm_valid) {
+                if ((err = suns_model_point_get_float32(model, "RmpIncTmm", index, &curve->rmp_inc_tmm)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+
+            if ((err = suns_model_point_get_str(model, "CrvNam", index, &nam_str)) != SUNS_ERR_OK) {
+                return err;
+            }
+            memcpy(curve->crv_nam, nam_str, INV_CRV_NAM_LEN);
+
+            if ((err = suns_model_point_get_uint16(model, "ReadOnly", index, &curve->read_only, NULL)) != SUNS_ERR_OK) {
+               return err;
+            }
         }
     }
 
@@ -213,6 +285,25 @@ inv_volt_var_set_curve(suns_device_t *device, uint16_t index, inv_volt_var_curve
                     return err;
                 }
             }
+
+            /* set timers if present */
+            if ((curve->rmp_tms_valid != 0) && (err = suns_model_point_set_uint16(model, "RmpTms", index, curve->rmp_tms, 0)) != SUNS_ERR_OK) {
+                return err;
+            }
+            if ((curve->rmp_dec_tmm_valid != 0) && (err = suns_model_point_set_float32(model, "RmpDecTmm", index, curve->rmp_dec_tmm)) != SUNS_ERR_OK) {
+                return err;
+            }
+            if ((curve->rmp_inc_tmm_valid != 0) && (err = suns_model_point_set_float32(model, "RmpIncTmm", index, curve->rmp_inc_tmm)) != SUNS_ERR_OK) {
+                return err;
+            }
+
+            /* set curve name if present */
+            if (curve->crv_nam[0] != 0) {
+                if ((err = suns_model_point_set_str(model, "CrvNam", index, (char *) curve->crv_nam)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+
             curve->points = npt;
             /* get volt var active curve */
             if ((err = suns_model_point_set_uint16(model, "DeptRef", index, curve->dept_ref, 0))  != SUNS_ERR_OK) {
@@ -233,7 +324,7 @@ inv_volt_watt_disable(suns_device_t *device)
 }
 
 suns_err_t
-inv_volt_watt_enable(suns_device_t *device, uint16_t act_crv, uint16_t rvrt_tms)
+inv_volt_watt_enable(suns_device_t *device, uint16_t act_crv, inv_timers_t *timers)
 {
     suns_err_t err = SUNS_ERR_NOT_FOUND;
     suns_model_t *model;
@@ -256,7 +347,8 @@ inv_volt_watt_enable(suns_device_t *device, uint16_t act_crv, uint16_t rvrt_tms)
             if ((err = suns_model_point_set_uint16(model, "ActCrv", 0, act_crv, 0)) != SUNS_ERR_OK) {
                 return err;
             }
-            if ((rvrt_tms != 0) && (err = suns_model_point_set_uint16(model, "RvrtTms", 0, rvrt_tms, 0)) != SUNS_ERR_OK) {
+            /* set timers */
+            if ((err = inv_mod_set_timers(model, timers)) != SUNS_ERR_OK) {
                 return err;
             }
             /* write model changes to device */
@@ -278,9 +370,9 @@ inv_volt_watt_enable(suns_device_t *device, uint16_t act_crv, uint16_t rvrt_tms)
 }
 
 suns_err_t
-inv_volt_watt_get_status(suns_device_t *device, uint16_t *mod_ena, uint16_t *act_crv)
+inv_volt_watt_get_status(suns_device_t *device, inv_mod_t *mod)
 {
-    return inv_mod_get_status(device, "volt_watt", mod_ena, act_crv);
+    return inv_mod_get_status(device, "volt_watt", mod);
 }
 
 suns_err_t
@@ -293,6 +385,7 @@ inv_volt_watt_get_curve(suns_device_t *device, uint16_t index, inv_volt_watt_cur
     int16_t sf;
     uint16_t i;
     char point_name[16];
+    char *nam_str = NULL;
 
     model = suns_device_get_model(device, 0, "volt_watt", 1);
     if (model) {
@@ -323,6 +416,35 @@ inv_volt_watt_get_curve(suns_device_t *device, uint16_t index, inv_volt_watt_cur
             curve->points = npt;
             /* get volt var active curve */
             err = suns_model_point_get_uint16(model, "DeptRef", index, &curve->dept_ref, &sf);
+
+            /* get timers */
+            curve->rmp_pt1_tms_valid = suns_model_point_is_implemented(model, "RmpPt1Tms", 0);
+            curve->rmp_dec_tmm_valid = suns_model_point_is_implemented(model, "RmpDecTmm", 0);
+            curve->rmp_inc_tmm_valid = suns_model_point_is_implemented(model, "RmpIncTmm", 0);
+            if (curve->rmp_pt1_tms_valid) {
+                if ((err = suns_model_point_get_uint16(model, "RmpPt1Tms", index, &curve->rmp_pt1_tms, NULL)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+            if (curve->rmp_dec_tmm_valid) {
+                if ((err = suns_model_point_get_float32(model, "RmpDecTmm", index, &curve->rmp_dec_tmm)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+            if (curve->rmp_inc_tmm_valid) {
+                if ((err = suns_model_point_get_float32(model, "RmpIncTmm", index, &curve->rmp_inc_tmm)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+
+            if ((err = suns_model_point_get_str(model, "CrvNam", index, &nam_str)) != SUNS_ERR_OK) {
+                return err;
+            }
+            memcpy(curve->crv_nam, nam_str, INV_CRV_NAM_LEN);
+
+            if ((err = suns_model_point_get_uint16(model, "ReadOnly", index, &curve->read_only, NULL)) != SUNS_ERR_OK) {
+               return err;
+            }
         }
     }
 
@@ -369,6 +491,25 @@ inv_volt_watt_set_curve(suns_device_t *device, uint16_t index, inv_volt_watt_cur
                     return err;
                 }
             }
+
+            /* set timers if present */
+            if ((curve->rmp_pt1_tms_valid != 0) && (err = suns_model_point_set_uint16(model, "RmpPt1Tms", index, curve->rmp_pt1_tms, 0)) != SUNS_ERR_OK) {
+                return err;
+            }
+            if ((curve->rmp_dec_tmm_valid != 0) && (err = suns_model_point_set_float32(model, "RmpDecTmm", index, curve->rmp_dec_tmm)) != SUNS_ERR_OK) {
+                return err;
+            }
+            if ((curve->rmp_inc_tmm_valid != 0) && (err = suns_model_point_set_float32(model, "RmpIncTmm", index, curve->rmp_inc_tmm)) != SUNS_ERR_OK) {
+                return err;
+            }
+
+            /* set curve name if present */
+            if (curve->crv_nam[0] != '\0') {
+                if ((err = suns_model_point_set_str(model, "CrvNam", index, (char *) curve->crv_nam)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+
             curve->points = npt;
             /* get volt var active curve */
             if ((err = suns_model_point_set_uint16(model, "DeptRef", index, curve->dept_ref, 0))  != SUNS_ERR_OK) {
@@ -389,7 +530,7 @@ inv_freq_watt_disable(suns_device_t *device)
 }
 
 suns_err_t
-inv_freq_watt_enable(suns_device_t *device, uint16_t act_crv, uint16_t rvrt_tms)
+inv_freq_watt_enable(suns_device_t *device, uint16_t act_crv, inv_timers_t *timers)
 {
     suns_err_t err = SUNS_ERR_NOT_FOUND;
     suns_model_t *model;
@@ -412,7 +553,8 @@ inv_freq_watt_enable(suns_device_t *device, uint16_t act_crv, uint16_t rvrt_tms)
             if ((err = suns_model_point_set_uint16(model, "ActCrv", 0, act_crv, 0)) != SUNS_ERR_OK) {
                 return err;
             }
-            if ((rvrt_tms != 0) && (err = suns_model_point_set_uint16(model, "RvrtTms", 0, rvrt_tms, 0)) != SUNS_ERR_OK) {
+            /* set timers */
+            if ((err = inv_mod_set_timers(model, timers)) != SUNS_ERR_OK) {
                 return err;
             }
             /* write model changes to device */
@@ -434,9 +576,9 @@ inv_freq_watt_enable(suns_device_t *device, uint16_t act_crv, uint16_t rvrt_tms)
 }
 
 suns_err_t
-inv_freq_watt_get_status(suns_device_t *device, uint16_t *mod_ena, uint16_t *act_crv)
+inv_freq_watt_get_status(suns_device_t *device, inv_mod_t *mod)
 {
-    return inv_mod_get_status(device, "freq_watt", mod_ena, act_crv);
+    return inv_mod_get_status(device, "freq_watt", mod);
 }
 
 suns_err_t
@@ -449,6 +591,7 @@ inv_freq_watt_get_curve(suns_device_t *device, uint16_t index, inv_freq_watt_cur
     int16_t sf;
     uint16_t i;
     char point_name[16];
+    char *nam_str = NULL;
 
     model = suns_device_get_model(device, 0, "freq_watt", 1);
     if (model) {
@@ -477,6 +620,58 @@ inv_freq_watt_get_curve(suns_device_t *device, uint16_t index, inv_freq_watt_cur
                 }
             }
             curve->points = npt;
+
+            curve->rmp_pt1_tms_valid = suns_model_point_is_implemented(model, "RmpPt1Tms", 0);
+            curve->rmp_dec_tmm_valid = suns_model_point_is_implemented(model, "RmpDecTmm", 0);
+            curve->rmp_inc_tmm_valid = suns_model_point_is_implemented(model, "RmpIncTmm", 0);
+            curve->rmp_rs_up_valid = suns_model_point_is_implemented(model, "RmpRsUp", 0);
+            curve->w_ref_valid = suns_model_point_is_implemented(model, "WRef", 0);
+            curve->w_ref_str_hz_valid = suns_model_point_is_implemented(model, "WRefStrHz", 0);
+            curve->w_ref_stop_hz_valid = suns_model_point_is_implemented(model, "WRefStopHz", 0);
+            if (curve->rmp_pt1_tms_valid) {
+                if ((err = suns_model_point_get_uint16(model, "RmpPt1Tms", index, &curve->rmp_pt1_tms, NULL)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+            if (curve->rmp_dec_tmm_valid) {
+                if ((err = suns_model_point_get_float32(model, "RmpDecTmm", index, &curve->rmp_dec_tmm)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+            if (curve->rmp_inc_tmm_valid) {
+                if ((err = suns_model_point_get_float32(model, "RmpIncTmm", index, &curve->rmp_inc_tmm)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+            if (curve->rmp_rs_up_valid) {
+                if ((err = suns_model_point_get_float32(model, "RmpRsUp", index, &curve->rmp_rs_up)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+            if (curve->w_ref_valid) {
+                if ((err = suns_model_point_get_float32(model, "WRef", index, &curve->w_ref)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+            if (curve->w_ref_str_hz_valid) {
+                if ((err = suns_model_point_get_float32(model, "WRefStrHz", index, &curve->w_ref_str_hz)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+            if (curve->w_ref_stop_hz_valid) {
+                if ((err = suns_model_point_get_float32(model, "WRefStopHz", index, &curve->w_ref_stop_hz)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
+
+            if ((err = suns_model_point_get_str(model, "CrvNam", index, &nam_str)) != SUNS_ERR_OK) {
+                return err;
+            }
+            memcpy(curve->crv_nam, nam_str, INV_CRV_NAM_LEN);
+
+            if ((err = suns_model_point_get_uint16(model, "ReadOnly", index, &curve->read_only, NULL)) != SUNS_ERR_OK) {
+               return err;
+            }
         }
     }
 
@@ -524,6 +719,36 @@ inv_freq_watt_set_curve(suns_device_t *device, uint16_t index, inv_freq_watt_cur
                 }
             }
             curve->points = npt;
+
+            /* set timers if present */
+            if ((curve->rmp_pt1_tms_valid != 0) && (err = suns_model_point_set_uint16(model, "RmpPt1Tms", index, curve->rmp_pt1_tms, 0)) != SUNS_ERR_OK) {
+                return err;
+            }
+            if ((curve->rmp_dec_tmm_valid != 0) && (err = suns_model_point_set_float32(model, "RmpDecTmm", index, curve->rmp_dec_tmm)) != SUNS_ERR_OK) {
+                return err;
+            }
+            if ((curve->rmp_inc_tmm_valid != 0) && (err = suns_model_point_set_float32(model, "RmpIncTmm", index, curve->rmp_inc_tmm)) != SUNS_ERR_OK) {
+                return err;
+            }
+            if ((curve->rmp_rs_up_valid != 0) && (err = suns_model_point_set_float32(model, "RmpRsUp", index, curve->rmp_rs_up)) != SUNS_ERR_OK) {
+                return err;
+            }
+            if ((curve->w_ref_valid != 0) && (err = suns_model_point_set_float32(model, "WRef", index, curve->w_ref)) != SUNS_ERR_OK) {
+                return err;
+            }
+            if ((curve->w_ref_str_hz_valid != 0) && (err = suns_model_point_set_float32(model, "WRefStrHz", index, curve->w_ref_str_hz)) != SUNS_ERR_OK) {
+                return err;
+            }
+            if ((curve->w_ref_stop_hz_valid != 0) && (err = suns_model_point_set_float32(model, "WRefStopHz", index, curve->w_ref_stop_hz)) != SUNS_ERR_OK) {
+                return err;
+            }
+
+            /* set curve name if present */
+            if (curve->crv_nam[0] != '\0') {
+                if ((err = suns_model_point_set_str(model, "CrvNam", index, (char *) curve->crv_nam)) != SUNS_ERR_OK) {
+                    return err;
+                }
+            }
 
             /* write changes to device */
             err = suns_model_write(model);
@@ -608,21 +833,21 @@ inv_get_fixed_pf(suns_device_t *device, inv_fixed_pf_t *fixed_pf)
             if ((err = suns_model_point_get_uint16(model, "OutPFSet_Ena", 0, &fixed_pf->enabled, NULL)) != SUNS_ERR_OK) {
                 return err;
             }
-            fixed_pf->win_tms_valid = suns_model_point_is_implemented(model, "OutPFSet_WinTms", 0);
-            fixed_pf->rvrt_tms_valid = suns_model_point_is_implemented(model, "OutPFSet_RvrtTms", 0);
-            fixed_pf->rmp_tms_valid = suns_model_point_is_implemented(model, "OutPFSet_RmpTms", 0);
-            if (fixed_pf->win_tms_valid) {
-                if ((err = suns_model_point_get_uint16(model, "OutPFSet_WinTms", 0, &fixed_pf->win_tms, NULL)) != SUNS_ERR_OK) {
+            fixed_pf->timers.win_tms_valid = suns_model_point_is_implemented(model, "OutPFSet_WinTms", 0);
+            fixed_pf->timers.rvrt_tms_valid = suns_model_point_is_implemented(model, "OutPFSet_RvrtTms", 0);
+            fixed_pf->timers.rmp_tms_valid = suns_model_point_is_implemented(model, "OutPFSet_RmpTms", 0);
+            if (fixed_pf->timers.win_tms_valid) {
+                if ((err = suns_model_point_get_uint16(model, "OutPFSet_WinTms", 0, &fixed_pf->timers.win_tms, NULL)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
-            if (fixed_pf->rvrt_tms_valid) {
-                if ((err = suns_model_point_get_uint16(model, "OutPFSet_RvrtTms", 0, &fixed_pf->rvrt_tms, NULL)) != SUNS_ERR_OK) {
+            if (fixed_pf->timers.rvrt_tms_valid) {
+                if ((err = suns_model_point_get_uint16(model, "OutPFSet_RvrtTms", 0, &fixed_pf->timers.rvrt_tms, NULL)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
-            if (fixed_pf->rmp_tms_valid) {
-                if ((err = suns_model_point_get_uint16(model, "OutPFSet_RmpTms", 0, &fixed_pf->rmp_tms, NULL)) != SUNS_ERR_OK) {
+            if (fixed_pf->timers.rmp_tms_valid) {
+                if ((err = suns_model_point_get_uint16(model, "OutPFSet_RmpTms", 0, &fixed_pf->timers.rmp_tms, NULL)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
@@ -651,18 +876,18 @@ inv_set_fixed_pf(suns_device_t *device, inv_fixed_pf_t *fixed_pf)
                 return err;
             }
 
-            if (fixed_pf->win_tms_valid && suns_model_point_is_implemented(model, "OutPFSet_WinTms", 0)) {
-                if ((err = suns_model_point_set_uint16(model, "OutPFSet_WinTms", 0, fixed_pf->win_tms, 0)) != SUNS_ERR_OK) {
+            if (fixed_pf->timers.win_tms_valid && suns_model_point_is_implemented(model, "OutPFSet_WinTms", 0)) {
+                if ((err = suns_model_point_set_uint16(model, "OutPFSet_WinTms", 0, fixed_pf->timers.win_tms, 0)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
-            if (fixed_pf->rvrt_tms_valid && suns_model_point_is_implemented(model, "OutPFSet_RvrtTms", 0)) {
-                if ((err = suns_model_point_set_uint16(model, "OutPFSet_RvrtTms", 0, fixed_pf->rvrt_tms, 0)) != SUNS_ERR_OK) {
+            if (fixed_pf->timers.rvrt_tms_valid && suns_model_point_is_implemented(model, "OutPFSet_RvrtTms", 0)) {
+                if ((err = suns_model_point_set_uint16(model, "OutPFSet_RvrtTms", 0, fixed_pf->timers.rvrt_tms, 0)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
-            if (fixed_pf->rmp_tms_valid && suns_model_point_is_implemented(model, "OutPFSet_RmpTms", 0)) {
-                if ((err = suns_model_point_set_uint16(model, "OutPFSet_RmpTms", 0, fixed_pf->rmp_tms, 0)) != SUNS_ERR_OK) {
+            if (fixed_pf->timers.rmp_tms_valid && suns_model_point_is_implemented(model, "OutPFSet_RmpTms", 0)) {
+                if ((err = suns_model_point_set_uint16(model, "OutPFSet_RmpTms", 0, fixed_pf->timers.rmp_tms, 0)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
@@ -706,21 +931,21 @@ inv_get_max_power(suns_device_t *device, inv_max_power_t *max_power)
             if ((err = suns_model_point_get_uint16(model, "WMaxLim_Ena", 0, &max_power->enabled, NULL)) != SUNS_ERR_OK) {
                 return err;
             }
-            max_power->win_tms_valid = suns_model_point_is_implemented(model, "WMaxLimPct_WinTms", 0);
-            max_power->rvrt_tms_valid = suns_model_point_is_implemented(model, "WMaxLimPct_RvrtTms", 0);
-            max_power->rmp_tms_valid = suns_model_point_is_implemented(model, "WMaxLimPct_RmpTms", 0);
-            if (max_power->win_tms_valid) {
-                if ((err = suns_model_point_get_uint16(model, "WMaxLimPct_WinTms", 0, &max_power->win_tms, NULL)) != SUNS_ERR_OK) {
+            max_power->timers.win_tms_valid = suns_model_point_is_implemented(model, "WMaxLimPct_WinTms", 0);
+            max_power->timers.rvrt_tms_valid = suns_model_point_is_implemented(model, "WMaxLimPct_RvrtTms", 0);
+            max_power->timers.rmp_tms_valid = suns_model_point_is_implemented(model, "WMaxLimPct_RmpTms", 0);
+            if (max_power->timers.win_tms_valid) {
+                if ((err = suns_model_point_get_uint16(model, "WMaxLimPct_WinTms", 0, &max_power->timers.win_tms, NULL)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
-            if (max_power->rvrt_tms_valid) {
-                if ((err = suns_model_point_get_uint16(model, "WMaxLimPct_RvrtTms", 0, &max_power->rvrt_tms, NULL)) != SUNS_ERR_OK) {
+            if (max_power->timers.rvrt_tms_valid) {
+                if ((err = suns_model_point_get_uint16(model, "WMaxLimPct_RvrtTms", 0, &max_power->timers.rvrt_tms, NULL)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
-            if (max_power->rmp_tms_valid) {
-                if ((err = suns_model_point_get_uint16(model, "WMaxLimPct_RmpTms", 0, &max_power->rmp_tms, NULL)) != SUNS_ERR_OK) {
+            if (max_power->timers.rmp_tms_valid) {
+                if ((err = suns_model_point_get_uint16(model, "WMaxLimPct_RmpTms", 0, &max_power->timers.rmp_tms, NULL)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
@@ -751,18 +976,18 @@ inv_set_max_power(suns_device_t *device, inv_max_power_t *max_power)
                 return err;
             }
 
-            if (max_power->win_tms_valid && suns_model_point_is_implemented(model, "WMaxLimPct_WinTms", 0)) {
-                if ((err = suns_model_point_set_uint16(model, "WMaxLimPct_WinTms", 0, max_power->win_tms, 0)) != SUNS_ERR_OK) {
+            if (max_power->timers.win_tms_valid && suns_model_point_is_implemented(model, "WMaxLimPct_WinTms", 0)) {
+                if ((err = suns_model_point_set_uint16(model, "WMaxLimPct_WinTms", 0, max_power->timers.win_tms, 0)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
-            if (max_power->rvrt_tms_valid && suns_model_point_is_implemented(model, "WMaxLimPct_RvrtTms", 0)) {
-                if ((err = suns_model_point_set_uint16(model, "WMaxLimPct_RvrtTms", 0, max_power->rvrt_tms, 0)) != SUNS_ERR_OK) {
+            if (max_power->timers.rvrt_tms_valid && suns_model_point_is_implemented(model, "WMaxLimPct_RvrtTms", 0)) {
+                if ((err = suns_model_point_set_uint16(model, "WMaxLimPct_RvrtTms", 0, max_power->timers.rvrt_tms, 0)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
-            if (max_power->rmp_tms_valid && suns_model_point_is_implemented(model, "WMaxLimPct_RmpTms", 0)) {
-                if ((err = suns_model_point_set_uint16(model, "WMaxLimPct_RmpTms", 0, max_power->rmp_tms, 0)) != SUNS_ERR_OK) {
+            if (max_power->timers.rmp_tms_valid && suns_model_point_is_implemented(model, "WMaxLimPct_RmpTms", 0)) {
+                if ((err = suns_model_point_set_uint16(model, "WMaxLimPct_RmpTms", 0, max_power->timers.rmp_tms, 0)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
@@ -799,15 +1024,15 @@ inv_get_connect(suns_device_t *device, inv_connect_t *connect)
             if ((err = suns_model_point_get_uint16(model, "Conn", 0, &connect->conn, NULL)) != SUNS_ERR_OK) {
                 return err;
             }
-            connect->win_tms_valid = suns_model_point_is_implemented(model, "Conn_WinTms", 0);
-            connect->rvrt_tms_valid = suns_model_point_is_implemented(model, "Conn_RvrtTms", 0);
-            if (connect->win_tms_valid) {
-                if ((err = suns_model_point_get_uint16(model, "Conn_WinTms", 0, &connect->win_tms, NULL)) != SUNS_ERR_OK) {
+            connect->timers.win_tms_valid = suns_model_point_is_implemented(model, "Conn_WinTms", 0);
+            connect->timers.rvrt_tms_valid = suns_model_point_is_implemented(model, "Conn_RvrtTms", 0);
+            if (connect->timers.win_tms_valid) {
+                if ((err = suns_model_point_get_uint16(model, "Conn_WinTms", 0, &connect->timers.win_tms, NULL)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
-            if (connect->rvrt_tms_valid) {
-                if ((err = suns_model_point_get_uint16(model, "Conn_RvrtTms", 0, &connect->rvrt_tms, NULL)) != SUNS_ERR_OK) {
+            if (connect->timers.rvrt_tms_valid) {
+                if ((err = suns_model_point_get_uint16(model, "Conn_RvrtTms", 0, &connect->timers.rvrt_tms, NULL)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
@@ -831,13 +1056,13 @@ inv_set_connect(suns_device_t *device, inv_connect_t *connect)
             if ((suns_model_point_is_implemented(model, "Conn", 0) == 0)) {
                 return SUNS_ERR_UNIMPLEMENTED;
             }
-            if (connect->win_tms_valid && suns_model_point_is_implemented(model, "Conn_WinTms", 0)) {
-                if ((err = suns_model_point_set_uint16(model, "Conn_WinTms", 0, connect->win_tms, 0)) != SUNS_ERR_OK) {
+            if (connect->timers.win_tms_valid && suns_model_point_is_implemented(model, "Conn_WinTms", 0)) {
+                if ((err = suns_model_point_set_uint16(model, "Conn_WinTms", 0, connect->timers.win_tms, 0)) != SUNS_ERR_OK) {
                     return err;
                 }
             }
-            if (connect->rvrt_tms_valid && suns_model_point_is_implemented(model, "Conn_RvrtTms", 0)) {
-                if ((err = suns_model_point_set_uint16(model, "Conn_RvrtTms", 0, connect->rvrt_tms, 0)) != SUNS_ERR_OK) {
+            if (connect->timers.rvrt_tms_valid && suns_model_point_is_implemented(model, "Conn_RvrtTms", 0)) {
+                if ((err = suns_model_point_set_uint16(model, "Conn_RvrtTms", 0, connect->timers.rvrt_tms, 0)) != SUNS_ERR_OK) {
                     return err;
                 }
             }

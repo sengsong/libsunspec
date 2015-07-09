@@ -802,8 +802,6 @@ example()
 {
     suns_device_t *device;
     suns_err_t err;
-    uint16_t mod_ena;
-    uint16_t act_crv;
     inv_volt_var_curve_t curve;
     uint16_t i;
     uint16_t wgra;
@@ -811,6 +809,7 @@ example()
     inv_max_power_t max_power;
     inv_connect_t connect;
     inv_status_t status;
+    inv_mod_t mod;
 
     /* allocate device */
     if ((device = suns_device_alloc()) == NULL) {
@@ -833,8 +832,8 @@ example()
     /* volt var get status */
     printf("\nvolt var get status:\n");
 
-    if ((err = inv_volt_var_get_status(device, &mod_ena, &act_crv)) == SUNS_ERR_OK) {
-        printf("mod_ena = %d  act_crv = %d\n", mod_ena, act_crv);
+    if ((err = inv_volt_var_get_status(device, &mod)) == SUNS_ERR_OK) {
+        printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
     } else {
         printf("Error %d getting volt var status\n", err);
     }
@@ -849,8 +848,8 @@ example()
     /* volt var get status */
     printf("\nvolt var get status:\n");
 
-    if ((err = inv_volt_var_get_status(device, &mod_ena, &act_crv)) == SUNS_ERR_OK) {
-        printf("mod_ena = %d  act_crv = %d\n", mod_ena, act_crv);
+    if ((err = inv_volt_var_get_status(device, &mod)) == SUNS_ERR_OK) {
+        printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
     } else {
         printf("Error %d getting volt var status\n", err);
     }
@@ -944,8 +943,8 @@ example()
     /* volt var get status */
     printf("\nvolt var get status:\n");
 
-    if ((err = inv_volt_var_get_status(device, &mod_ena, &act_crv)) == SUNS_ERR_OK) {
-        printf("mod_ena = %d  act_crv = %d\n", mod_ena, act_crv);
+    if ((err = inv_volt_var_get_status(device, &mod)) == SUNS_ERR_OK) {
+        printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
     } else {
         printf("Error %d getting volt var status\n", err);
     }
@@ -981,35 +980,35 @@ example()
     if ((err = inv_get_fixed_pf(device, &fixed_pf)) == SUNS_ERR_OK) {
         printf("enabled = %d\n", fixed_pf.enabled);
         printf("pf = %f\n", fixed_pf.pf);
-        printf("win_tms_valid = %d\n", fixed_pf.win_tms_valid);
-        printf("win_tms = %d\n", fixed_pf.win_tms);
-        printf("rvrt_tms_valid = %d\n", fixed_pf.rvrt_tms_valid);
-        printf("rvrt_tms = %d\n", fixed_pf.rvrt_tms);
-        printf("rmp_tms_valid = %d\n", fixed_pf.rmp_tms_valid);
-        printf("rmp_tms = %d\n", fixed_pf.rmp_tms);
+        printf("win_tms_valid = %d\n", fixed_pf.timers.win_tms_valid);
+        printf("win_tms = %d\n", fixed_pf.timers.win_tms);
+        printf("rvrt_tms_valid = %d\n", fixed_pf.timers.rvrt_tms_valid);
+        printf("rvrt_tms = %d\n", fixed_pf.timers.rvrt_tms);
+        printf("rmp_tms_valid = %d\n", fixed_pf.timers.rmp_tms_valid);
+        printf("rmp_tms = %d\n", fixed_pf.timers.rmp_tms);
     } else {
         printf("Error %d getting fixed pf\n", err);
     }
 
     fixed_pf.enabled = 1;
     fixed_pf.pf = .888;
-    fixed_pf.win_tms_valid = 1;
-    fixed_pf.win_tms = 10;
-    fixed_pf.rvrt_tms_valid = 1;
-    fixed_pf.rvrt_tms = 20;
-    fixed_pf.rmp_tms_valid = 1;
-    fixed_pf.rmp_tms = 30;
+    fixed_pf.timers.win_tms_valid = 1;
+    fixed_pf.timers.win_tms = 10;
+    fixed_pf.timers.rvrt_tms_valid = 1;
+    fixed_pf.timers.rvrt_tms = 20;
+    fixed_pf.timers.rmp_tms_valid = 1;
+    fixed_pf.timers.rmp_tms = 30;
 
     /* set fixed power factor */
     printf("\nset and enable fixed power factor:\n");
     printf("enabled = %d\n", fixed_pf.enabled);
     printf("pf = %f\n", fixed_pf.pf);
-    printf("win_tms_valid = %d\n", fixed_pf.win_tms_valid);
-    printf("win_tms = %d\n", fixed_pf.win_tms);
-    printf("rvrt_tms_valid = %d\n", fixed_pf.rvrt_tms_valid);
-    printf("rvrt_tms = %d\n", fixed_pf.rvrt_tms);
-    printf("rmp_tms_valid = %d\n", fixed_pf.rmp_tms_valid);
-    printf("rmp_tms = %d\n", fixed_pf.rmp_tms);
+    printf("win_tms_valid = %d\n", fixed_pf.timers.win_tms_valid);
+    printf("win_tms = %d\n", fixed_pf.timers.win_tms);
+    printf("rvrt_tms_valid = %d\n", fixed_pf.timers.rvrt_tms_valid);
+    printf("rvrt_tms = %d\n", fixed_pf.timers.rvrt_tms);
+    printf("rmp_tms_valid = %d\n", fixed_pf.timers.rmp_tms_valid);
+    printf("rmp_tms = %d\n", fixed_pf.timers.rmp_tms);
 
     if ((err = inv_set_fixed_pf(device, &fixed_pf)) != SUNS_ERR_OK) {
         printf("Error %d setting fixed pf\n", err);
@@ -1022,12 +1021,12 @@ example()
     if ((err = inv_get_fixed_pf(device, &fixed_pf)) == SUNS_ERR_OK) {
         printf("enabled = %d\n", fixed_pf.enabled);
         printf("pf = %f\n", fixed_pf.pf);
-        printf("win_tms_valid = %d\n", fixed_pf.win_tms_valid);
-        printf("win_tms = %d\n", fixed_pf.win_tms);
-        printf("rvrt_tms_valid = %d\n", fixed_pf.rvrt_tms_valid);
-        printf("rvrt_tms = %d\n", fixed_pf.rvrt_tms);
-        printf("rmp_tms_valid = %d\n", fixed_pf.rmp_tms_valid);
-        printf("rmp_tms = %d\n", fixed_pf.rmp_tms);
+        printf("win_tms_valid = %d\n", fixed_pf.timers.win_tms_valid);
+        printf("win_tms = %d\n", fixed_pf.timers.win_tms);
+        printf("rvrt_tms_valid = %d\n", fixed_pf.timers.rvrt_tms_valid);
+        printf("rvrt_tms = %d\n", fixed_pf.timers.rvrt_tms);
+        printf("rmp_tms_valid = %d\n", fixed_pf.timers.rmp_tms_valid);
+        printf("rmp_tms = %d\n", fixed_pf.timers.rmp_tms);
     } else {
         printf("Error %d getting fixed pf\n", err);
     }
@@ -1039,35 +1038,35 @@ example()
     if ((err = inv_get_max_power(device, &max_power)) == SUNS_ERR_OK) {
         printf("enabled = %d\n", max_power.enabled);
         printf("power = %d\n", max_power.power);
-        printf("win_tms_valid = %d\n", max_power.win_tms_valid);
-        printf("win_tms = %d\n", max_power.win_tms);
-        printf("rvrt_tms_valid = %d\n", max_power.rvrt_tms_valid);
-        printf("rvrt_tms = %d\n", max_power.rvrt_tms);
-        printf("rmp_tms_valid = %d\n", max_power.rmp_tms_valid);
-        printf("rmp_tms = %d\n", max_power.rmp_tms);
+        printf("win_tms_valid = %d\n", max_power.timers.win_tms_valid);
+        printf("win_tms = %d\n", max_power.timers.win_tms);
+        printf("rvrt_tms_valid = %d\n", max_power.timers.rvrt_tms_valid);
+        printf("rvrt_tms = %d\n", max_power.timers.rvrt_tms);
+        printf("rmp_tms_valid = %d\n", max_power.timers.rmp_tms_valid);
+        printf("rmp_tms = %d\n", max_power.timers.rmp_tms);
     } else {
         printf("Error %d getting max power\n", err);
     }
 
     max_power.enabled = 1;
     max_power.power = 75;
-    max_power.win_tms_valid = 1;
-    max_power.win_tms = 40;
-    max_power.rvrt_tms_valid = 1;
-    max_power.rvrt_tms = 50;
-    max_power.rmp_tms_valid = 1;
-    max_power.rmp_tms = 60;
+    max_power.timers.win_tms_valid = 1;
+    max_power.timers.win_tms = 40;
+    max_power.timers.rvrt_tms_valid = 1;
+    max_power.timers.rvrt_tms = 50;
+    max_power.timers.rmp_tms_valid = 1;
+    max_power.timers.rmp_tms = 60;
 
     /* set max power */
     printf("\nset and enable max power:\n");
     printf("enabled = %d\n", max_power.enabled);
     printf("power = %d\n", max_power.power);
-    printf("win_tms_valid = %d\n", max_power.win_tms_valid);
-    printf("win_tms = %d\n", max_power.win_tms);
-    printf("rvrt_tms_valid = %d\n", max_power.rvrt_tms_valid);
-    printf("rvrt_tms = %d\n", max_power.rvrt_tms);
-    printf("rmp_tms_valid = %d\n", max_power.rmp_tms_valid);
-    printf("rmp_tms = %d\n", max_power.rmp_tms);
+    printf("win_tms_valid = %d\n", max_power.timers.win_tms_valid);
+    printf("win_tms = %d\n", max_power.timers.win_tms);
+    printf("rvrt_tms_valid = %d\n", max_power.timers.rvrt_tms_valid);
+    printf("rvrt_tms = %d\n", max_power.timers.rvrt_tms);
+    printf("rmp_tms_valid = %d\n", max_power.timers.rmp_tms_valid);
+    printf("rmp_tms = %d\n", max_power.timers.rmp_tms);
 
     if ((err = inv_set_max_power(device, &max_power)) != SUNS_ERR_OK) {
         printf("Error %d setting max power\n", err);
@@ -1080,12 +1079,12 @@ example()
     if ((err = inv_get_max_power(device, &max_power)) == SUNS_ERR_OK) {
         printf("enabled = %d\n", max_power.enabled);
         printf("power = %d\n", max_power.power);
-        printf("win_tms_valid = %d\n", max_power.win_tms_valid);
-        printf("win_tms = %d\n", max_power.win_tms);
-        printf("rvrt_tms_valid = %d\n", max_power.rvrt_tms_valid);
-        printf("rvrt_tms = %d\n", max_power.rvrt_tms);
-        printf("rmp_tms_valid = %d\n", max_power.rmp_tms_valid);
-        printf("rmp_tms = %d\n", max_power.rmp_tms);
+        printf("win_tms_valid = %d\n", max_power.timers.win_tms_valid);
+        printf("win_tms = %d\n", max_power.timers.win_tms);
+        printf("rvrt_tms_valid = %d\n", max_power.timers.rvrt_tms_valid);
+        printf("rvrt_tms = %d\n", max_power.timers.rvrt_tms);
+        printf("rmp_tms_valid = %d\n", max_power.timers.rmp_tms_valid);
+        printf("rmp_tms = %d\n", max_power.timers.rmp_tms);
     } else {
         printf("Error %d getting max power\n", err);
     }
@@ -1095,10 +1094,10 @@ example()
 
     if ((err = inv_get_connect(device, &connect)) == SUNS_ERR_OK) {
         printf("conn = %d\n", connect.conn);
-        printf("win_tms_valid = %d\n", max_power.win_tms_valid);
-        printf("win_tms = %d\n", max_power.win_tms);
-        printf("rvrt_tms_valid = %d\n", max_power.rvrt_tms_valid);
-        printf("rvrt_tms = %d\n", max_power.rvrt_tms);
+        printf("win_tms_valid = %d\n", max_power.timers.win_tms_valid);
+        printf("win_tms = %d\n", max_power.timers.win_tms);
+        printf("rvrt_tms_valid = %d\n", max_power.timers.rvrt_tms_valid);
+        printf("rvrt_tms = %d\n", max_power.timers.rvrt_tms);
     } else {
         printf("Error %d getting connect\n", err);
     }
@@ -1106,10 +1105,10 @@ example()
     printf("\ndisconnect (set conn to 0)\n");
 
     connect.conn = 0;
-    connect.win_tms_valid = 1;
-    connect.win_tms = 40;
-    connect.rvrt_tms_valid = 1;
-    connect.rvrt_tms = 50;
+    connect.timers.win_tms_valid = 1;
+    connect.timers.win_tms = 40;
+    connect.timers.rvrt_tms_valid = 1;
+    connect.timers.rvrt_tms = 50;
 
     if ((err = inv_set_connect(device, &connect)) != SUNS_ERR_OK) {
         printf("Error %d setting connect\n", err);
@@ -1120,10 +1119,10 @@ example()
 
     if ((err = inv_get_connect(device, &connect)) == SUNS_ERR_OK) {
         printf("conn = %d\n", connect.conn);
-        printf("win_tms_valid = %d\n", max_power.win_tms_valid);
-        printf("win_tms = %d\n", max_power.win_tms);
-        printf("rvrt_tms_valid = %d\n", max_power.rvrt_tms_valid);
-        printf("rvrt_tms = %d\n", max_power.rvrt_tms);
+        printf("win_tms_valid = %d\n", max_power.timers.win_tms_valid);
+        printf("win_tms = %d\n", max_power.timers.win_tms);
+        printf("rvrt_tms_valid = %d\n", max_power.timers.rvrt_tms_valid);
+        printf("rvrt_tms = %d\n", max_power.timers.rvrt_tms);
     } else {
         printf("Error %d getting connect\n", err);
     }
