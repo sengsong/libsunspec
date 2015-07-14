@@ -183,9 +183,9 @@ uint16_t test_device[] = {
     126, 226,
     1,                              /* ActCrv */
     0,                              /* ModEna */
-    0,                              /* WinTms */
-    600,                            /* RvrtTms */
-    65535,                          /* RmpTms */
+    400,                            /* WinTms */
+    500,                            /* RvrtTms */
+    600,                            /* RmpTms */
     4,                              /* NCrv */
     4,                              /* NPt */
     0,                              /* V_SF */
@@ -193,7 +193,7 @@ uint16_t test_device[] = {
     1,                              /* RmpIncDec_SF */
     4,                              /* ActPt */
     2,                              /* DeptRef */
-    95,                             /* V1 */
+    94,                             /* V1 */
     100,                            /* VAr1 */
     98,                             /* V2 */
     0,                              /* VAr2 */
@@ -235,8 +235,8 @@ uint16_t test_device[] = {
     -32768,                         /* VAr20 */
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     /* CrvNam -  */
     65535,                          /* RmpTms */
-    22,                             /* RmpDecTmm */
-    33,                             /* RmpIncTmm */
+    0,                              /* RmpDecTmm */
+    0,                              /* RmpIncTmm */
     0,                              /* ReadOnly */
     4,                              /* ActPt */
     2,                              /* DeptRef */
@@ -281,10 +281,10 @@ uint16_t test_device[] = {
     65535,                          /* V20 */
     -32768,                         /* VAr20 */
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     /* CrvNam -  */
-    65535,                          /* RmpTms */
+    330,                            /* RmpTms */
     44,                             /* RmpDecTmm */
     55,                             /* RmpIncTmm */
-    0,                              /* ReadOnly */
+    1,                              /* ReadOnly */
     4,                              /* ActPt */
     2,                              /* DeptRef */
     93,                             /* V1 */
@@ -584,9 +584,9 @@ uint16_t test_device[] = {
     132, 226,
     1,                              /* ActCrv */
     0,                              /* ModEna */
-    65535,                          /* WinTms */
-    600,                            /* RvrtTms */
-    65535,                          /* RmpTms */
+    402,                            /* WinTms */
+    502,                            /* RvrtTms */
+    602,                            /* RmpTms */
     4,                              /* NCrv */
     3,                              /* NPt */
     -1,                             /* V_SF */
@@ -682,9 +682,9 @@ uint16_t test_device[] = {
     65535,                          /* V20 */
     -32768,                         /* W20 */
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     /* CrvNam -  */
-    65535,                          /* RmpPt1Tms */
-    80,                             /* RmpDecTmm */
-    80,                             /* RmpIncTmm */
+    340,                            /* RmpPt1Tms */
+    350,                            /* RmpDecTmm */
+    360,                            /* RmpIncTmm */
     0,                              /* ReadOnly */
     3,                              /* ActPt */
     2,                              /* DeptRef */
@@ -785,16 +785,16 @@ uint16_t test_device[] = {
     134, 242,
     1,                              /* ActCrv */
     0,                              /* ModEna */
-    65535,                          /* WinTms */
-    600,                            /* RvrtTms */
-    65535,                          /* RmpTms */
+    404,                            /* WinTms */
+    504,                            /* RvrtTms */
+    604,                            /* RmpTms */
     4,                              /* NCrv */
     4,                              /* NPt */
     -1,                             /* HZ_SF */
     -1,                             /* W_SF */
     0,                              /* RmpIncDec_SF */
     4,                              /* ActPt */
-    990,                            /* HZ1 */
+    980,                            /* HZ1 */
     1000,                           /* W1 */
     991,                            /* HZ2 */
     1001,                           /* W2 */
@@ -835,14 +835,14 @@ uint16_t test_device[] = {
     65535,                          /* HZ20 */
     -32768,                         /* W20 */
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     /* CrvNam -  */
-    65535,                          /* RmpPt1Tms */
-    65535,                          /* RmpDecTmm */
-    65535,                          /* RmpIncTmm */
-    65535,                          /* RmpRsUp */
+    104,                            /* RmpPt1Tms */
+    204,                            /* RmpDecTmm */
+    304,                            /* RmpIncTmm */
+    404,                            /* RmpRsUp */
     0,                              /* SnptW */
-    65535,                          /* WRef */
-    65535,                          /* WRefStrHz */
-    65535,                          /* WRefStopHz */
+    5040,                           /* WRef */
+    6040,                           /* WRefStrHz */
+    7040,                           /* WRefStopHz */
     0,                              /* ReadOnly */
     4,                              /* ActPt */
     990,                            /* HZ1 */

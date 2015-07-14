@@ -249,8 +249,8 @@ uint16_t inv_test_device[] = {
     -32768,                         /* VAr20 */
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     /* CrvNam -  */
     65535,                          /* RmpTms */
-    0,                              /* RmpDecTmm */
-    0,                              /* RmpIncTmm */
+    65535,                          /* RmpDecTmm */
+    65535,                          /* RmpIncTmm */
     0,                              /* ReadOnly */
     4,                              /* ActPt */
     2,                              /* DeptRef */
@@ -295,10 +295,10 @@ uint16_t inv_test_device[] = {
     65535,                          /* V20 */
     -32768,                         /* VAr20 */
     0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000,     /* CrvNam -  */
-    65535,                          /* RmpTms */
-    0,                              /* RmpDecTmm */
-    0,                              /* RmpIncTmm */
-    0,                              /* ReadOnly */
+    10,                             /* RmpTms */
+    22,                             /* RmpDecTmm */
+    33,                             /* RmpIncTmm */
+    1,                              /* ReadOnly */
     4,                              /* ActPt */
     2,                              /* DeptRef */
     93,                             /* V1 */

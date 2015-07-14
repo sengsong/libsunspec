@@ -40,6 +40,7 @@ test_inv_volt_watt(CuTest* tc)
     inv_volt_watt_curve_t curve_1;
     uint16_t i;
     inv_mod_t mod;
+    inv_timers_t timers;
 
     /* allocate device */
     device = suns_device_alloc();
@@ -58,12 +59,24 @@ test_inv_volt_watt(CuTest* tc)
 
     err = inv_volt_watt_get_status(device, &mod);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
+    CuAssertTrue(tc, mod.timers.win_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.rvrt_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.rmp_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.win_tms == 402);
+    CuAssertTrue(tc, mod.timers.rvrt_tms == 502);
+    CuAssertTrue(tc, mod.timers.rmp_tms == 602);
     printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     /* volt watt enable curve 2 */
     printf("\nvolt watt enable curve 2\n");
 
-    err = inv_volt_watt_enable(device, 2, NULL);
+    timers.win_tms_valid = 1;
+    timers.rvrt_tms_valid = 1;
+    timers.rmp_tms_valid = 1;
+    timers.win_tms = 403;
+    timers.rvrt_tms = 503;
+    timers.rmp_tms = 603;
+    err = inv_volt_watt_enable(device, 2, &timers);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
 
     /* volt watt get status */
@@ -73,6 +86,12 @@ test_inv_volt_watt(CuTest* tc)
     CuAssertTrue(tc, err == SUNS_ERR_OK);
     CuAssertTrue(tc, mod.mod_ena == 1);
     CuAssertTrue(tc, mod.act_crv == 2);
+    CuAssertTrue(tc, mod.timers.win_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.rvrt_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.rmp_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.win_tms == 403);
+    CuAssertTrue(tc, mod.timers.rvrt_tms == 503);
+    CuAssertTrue(tc, mod.timers.rmp_tms == 603);
     printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     /* volt watt get curve 1 */
@@ -120,6 +139,12 @@ test_inv_volt_watt(CuTest* tc)
     curve.w[0] = 100;
     curve.w[1] = 200;
     curve.w[2] = 300;
+    curve.rmp_pt1_tms_valid = 1;
+    curve.rmp_dec_tmm_valid = 1;
+    curve.rmp_inc_tmm_valid = 1;
+    curve.rmp_pt1_tms = 112;
+    curve.rmp_dec_tmm = 222;
+    curve.rmp_inc_tmm = 332;
 
     printf("\nvolt watt set curve 1:\n");
     printf("dept_ref = %d\n", curve.dept_ref);
@@ -142,6 +167,12 @@ test_inv_volt_watt(CuTest* tc)
     CuAssertTrue(tc, curve_1.w[0] = 100);
     CuAssertTrue(tc, curve_1.w[1] = 200);
     CuAssertTrue(tc, curve_1.w[2] = 300);
+    CuAssertTrue(tc, curve.rmp_pt1_tms_valid == 1);
+    CuAssertTrue(tc, curve.rmp_dec_tmm_valid == 1);
+    CuAssertTrue(tc, curve.rmp_inc_tmm_valid == 1);
+    CuAssertTrue(tc, curve.rmp_pt1_tms == 112);
+    CuAssertTrue(tc, curve.rmp_dec_tmm == 222);
+    CuAssertTrue(tc, curve.rmp_inc_tmm == 332);
     for (i = 0; i < curve.points; i++) {
         printf("%02d: v = %f  w = %f\n", i, curve.v[i], curve.w[i]);
     }
@@ -172,6 +203,7 @@ test_inv_freq_watt(CuTest* tc)
     inv_freq_watt_curve_t curve_1;
     uint16_t i;
     inv_mod_t mod;
+    inv_timers_t timers;
 
     /* allocate device */
     device = suns_device_alloc();
@@ -190,12 +222,24 @@ test_inv_freq_watt(CuTest* tc)
 
     err = inv_freq_watt_get_status(device, &mod);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
+    CuAssertTrue(tc, mod.timers.win_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.rvrt_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.rmp_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.win_tms == 404);
+    CuAssertTrue(tc, mod.timers.rvrt_tms == 504);
+    CuAssertTrue(tc, mod.timers.rmp_tms == 604);
     printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     /* freq watt enable curve 2 */
     printf("\nfreq watt enable curve 2\n");
 
-    err = inv_freq_watt_enable(device, 2, NULL);
+    timers.win_tms_valid = 1;
+    timers.rvrt_tms_valid = 1;
+    timers.rmp_tms_valid = 1;
+    timers.win_tms = 405;
+    timers.rvrt_tms = 505;
+    timers.rmp_tms = 605;
+    err = inv_freq_watt_enable(device, 2, &timers);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
 
     /* freq watt get status */
@@ -205,6 +249,12 @@ test_inv_freq_watt(CuTest* tc)
     CuAssertTrue(tc, err == SUNS_ERR_OK);
     CuAssertTrue(tc, mod.mod_ena == 1);
     CuAssertTrue(tc, mod.act_crv == 2);
+    CuAssertTrue(tc, mod.timers.win_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.rvrt_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.rmp_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.win_tms == 405);
+    CuAssertTrue(tc, mod.timers.rvrt_tms == 505);
+    CuAssertTrue(tc, mod.timers.rmp_tms == 605);
     printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     /* freq watt get curve 1 */
@@ -212,6 +262,20 @@ test_inv_freq_watt(CuTest* tc)
 
     err = inv_freq_watt_get_curve(device, 1, &curve);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
+    CuAssertTrue(tc, curve.rmp_pt1_tms_valid == 1);
+    CuAssertTrue(tc, curve.rmp_dec_tmm_valid == 1);
+    CuAssertTrue(tc, curve.rmp_inc_tmm_valid == 1);
+    CuAssertTrue(tc, curve.rmp_rs_up_valid == 1);
+    CuAssertTrue(tc, curve.w_ref_valid == 1);
+    CuAssertTrue(tc, curve.w_ref_str_hz_valid == 1);
+    CuAssertTrue(tc, curve.w_ref_stop_hz_valid == 1);
+    CuAssertTrue(tc, curve.rmp_pt1_tms == 104);
+    CuAssertTrue(tc, curve.rmp_dec_tmm == 204);
+    CuAssertTrue(tc, curve.rmp_inc_tmm == 304);
+    CuAssertTrue(tc, curve.rmp_rs_up == 404);
+    CuAssertTrue(tc, curve.w_ref == 504);
+    CuAssertTrue(tc, curve.w_ref_str_hz == 604);
+    CuAssertTrue(tc, curve.w_ref_stop_hz == 704);
     for (i = 0; i < curve.points; i++) {
         printf("%02d: hz = %f  w = %f\n", i, curve.hz[i], curve.w[i]);
     }
@@ -253,6 +317,20 @@ test_inv_freq_watt(CuTest* tc)
     curve.w[1] = 87;
     curve.w[2] = 88;
     curve.w[3] = 89;
+    curve.rmp_pt1_tms_valid = 1;
+    curve.rmp_dec_tmm_valid = 1;
+    curve.rmp_inc_tmm_valid = 1;
+    curve.rmp_rs_up_valid = 1;
+    curve.w_ref_valid = 1;
+    curve.w_ref_str_hz_valid = 1;
+    curve.w_ref_stop_hz_valid = 1;
+    curve.rmp_pt1_tms = 105;
+    curve.rmp_dec_tmm = 205;
+    curve.rmp_inc_tmm = 305;
+    curve.rmp_rs_up = 405;
+    curve.w_ref = 505;
+    curve.w_ref_str_hz = 605;
+    curve.w_ref_stop_hz = 705;
 
     printf("\nfreq watt set curve 1:\n");
     for (i = 0; i < curve.points; i++) {
@@ -268,14 +346,28 @@ test_inv_freq_watt(CuTest* tc)
     memset(&curve_1, 0, sizeof(curve_1));
     err = inv_freq_watt_get_curve(device, 1, &curve_1);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
-    CuAssertTrue(tc, curve_1.hz[0] = 76);
-    CuAssertTrue(tc, curve_1.hz[1] = 77);
-    CuAssertTrue(tc, curve_1.hz[2] = 78);
-    CuAssertTrue(tc, curve_1.hz[3] = 79);
-    CuAssertTrue(tc, curve_1.w[0] = 86);
-    CuAssertTrue(tc, curve_1.w[1] = 87);
-    CuAssertTrue(tc, curve_1.w[2] = 88);
-    CuAssertTrue(tc, curve_1.w[2] = 89);
+    CuAssertTrue(tc, curve_1.hz[0] == 76);
+    CuAssertTrue(tc, curve_1.hz[1] == 77);
+    CuAssertTrue(tc, curve_1.hz[2] == 78);
+    CuAssertTrue(tc, curve_1.hz[3] == 79);
+    CuAssertTrue(tc, curve_1.w[0] == 86);
+    CuAssertTrue(tc, curve_1.w[1] == 87);
+    CuAssertTrue(tc, curve_1.w[2] == 88);
+    CuAssertTrue(tc, curve_1.w[3] == 89);
+    CuAssertTrue(tc, curve.rmp_pt1_tms_valid == 1);
+    CuAssertTrue(tc, curve.rmp_dec_tmm_valid == 1);
+    CuAssertTrue(tc, curve.rmp_inc_tmm_valid == 1);
+    CuAssertTrue(tc, curve.rmp_rs_up_valid == 1);
+    CuAssertTrue(tc, curve.w_ref_valid == 1);
+    CuAssertTrue(tc, curve.w_ref_str_hz_valid == 1);
+    CuAssertTrue(tc, curve.w_ref_stop_hz_valid == 1);
+    CuAssertTrue(tc, curve.rmp_pt1_tms == 105);
+    CuAssertTrue(tc, curve.rmp_dec_tmm == 205);
+    CuAssertTrue(tc, curve.rmp_inc_tmm == 305);
+    CuAssertTrue(tc, curve.rmp_rs_up == 405);
+    CuAssertTrue(tc, curve.w_ref == 505);
+    CuAssertTrue(tc, curve.w_ref_str_hz == 605);
+    CuAssertTrue(tc, curve.w_ref_stop_hz == 705);
     for (i = 0; i < curve.points; i++) {
         printf("%02d: hz = %f  w = %f\n", i, curve.hz[i], curve.w[i]);
     }
@@ -306,6 +398,7 @@ test_inv_volt_var(CuTest* tc)
     inv_volt_var_curve_t curve_1;
     uint16_t i;
     inv_mod_t mod;
+    inv_timers_t timers;
 
     /* allocate device */
     device = suns_device_alloc();
@@ -324,12 +417,24 @@ test_inv_volt_var(CuTest* tc)
 
     err = inv_volt_var_get_status(device, &mod);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
+    CuAssertTrue(tc, mod.timers.win_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.rvrt_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.rmp_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.win_tms == 400);
+    CuAssertTrue(tc, mod.timers.rvrt_tms == 500);
+    CuAssertTrue(tc, mod.timers.rmp_tms == 600);
     printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     /* volt var enable curve 2 */
     printf("\nvolt var enable curve 2\n");
 
-    err = inv_volt_var_enable(device, 2, NULL);
+    timers.win_tms_valid = 1;
+    timers.rvrt_tms_valid = 1;
+    timers.rmp_tms_valid = 1;
+    timers.win_tms = 401;
+    timers.rvrt_tms = 501;
+    timers.rmp_tms = 601;
+    err = inv_volt_var_enable(device, 2, &timers);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
 
     /* volt var get status */
@@ -339,6 +444,12 @@ test_inv_volt_var(CuTest* tc)
     CuAssertTrue(tc, err == SUNS_ERR_OK);
     CuAssertTrue(tc, mod.mod_ena == 1);
     CuAssertTrue(tc, mod.act_crv == 2);
+    CuAssertTrue(tc, mod.timers.win_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.rvrt_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.rmp_tms_valid == 1);
+    CuAssertTrue(tc, mod.timers.win_tms == 401);
+    CuAssertTrue(tc, mod.timers.rvrt_tms == 501);
+    CuAssertTrue(tc, mod.timers.rmp_tms == 601);
     printf("mod_ena = %d  act_crv = %d\n", mod.mod_ena, mod.act_crv);
 
     /* volt var get curve 1 */
@@ -358,6 +469,11 @@ test_inv_volt_var(CuTest* tc)
     for (i = 0; i < curve.points; i++) {
         printf("%02d: v = %f  var = %f\n", i, curve.v[i], curve.var[i]);
     }
+    CuAssertTrue(tc, curve.rmp_tms_valid == 1 && curve.rmp_tms == 330);
+    CuAssertTrue(tc, curve.rmp_dec_tmm_valid == 1 && curve.rmp_dec_tmm == 440);
+    CuAssertTrue(tc, curve.rmp_inc_tmm_valid == 1 && curve.rmp_inc_tmm == 550);
+    CuAssertTrue(tc, curve.read_only == 1);
+    CuAssertTrue(tc, err == SUNS_ERR_OK);
 
     /* volt var get curve 3 */
     printf("\nvolt var get curve 3:\n");
@@ -388,6 +504,12 @@ test_inv_volt_var(CuTest* tc)
     curve.var[1] = 200;
     curve.var[2] = 300;
     curve.var[3] = 400;
+    curve.rmp_tms_valid = 1;
+    curve.rmp_dec_tmm_valid = 1;
+    curve.rmp_inc_tmm_valid = 1;
+    curve.rmp_tms = 110;
+    curve.rmp_dec_tmm = 220;
+    curve.rmp_inc_tmm = 330;
 
     printf("\nvolt var set curve 1:\n");
     printf("dept_ref = %d\n", curve.dept_ref);
@@ -404,14 +526,20 @@ test_inv_volt_var(CuTest* tc)
     memset(&curve_1, 0, sizeof(curve_1));
     err = inv_volt_var_get_curve(device, 1, &curve_1);
     CuAssertTrue(tc, err == SUNS_ERR_OK);
-    CuAssertTrue(tc, curve_1.v[0] = 10);
-    CuAssertTrue(tc, curve_1.v[1] = 20);
-    CuAssertTrue(tc, curve_1.v[2] = 30);
-    CuAssertTrue(tc, curve_1.v[3] = 40);
-    CuAssertTrue(tc, curve_1.var[0] = 100);
-    CuAssertTrue(tc, curve_1.var[1] = 200);
-    CuAssertTrue(tc, curve_1.var[2] = 300);
-    CuAssertTrue(tc, curve_1.var[3] = 400);
+    CuAssertTrue(tc, curve_1.v[0] == 10);
+    CuAssertTrue(tc, curve_1.v[1] == 20);
+    CuAssertTrue(tc, curve_1.v[2] == 30);
+    CuAssertTrue(tc, curve_1.v[3] == 40);
+    CuAssertTrue(tc, curve_1.var[0] == 100);
+    CuAssertTrue(tc, curve_1.var[1] == 200);
+    CuAssertTrue(tc, curve_1.var[2] == 300);
+    CuAssertTrue(tc, curve_1.var[3] == 400);
+    CuAssertTrue(tc, curve.rmp_tms_valid == 1);
+    CuAssertTrue(tc, curve.rmp_dec_tmm_valid == 1);
+    CuAssertTrue(tc, curve.rmp_inc_tmm_valid == 1);
+    CuAssertTrue(tc, curve.rmp_tms == 110);
+    CuAssertTrue(tc, curve.rmp_dec_tmm == 220);
+    CuAssertTrue(tc, curve.rmp_inc_tmm == 330);
     for (i = 0; i < curve.points; i++) {
         printf("%02d: v = %f  var = %f\n", i, curve.v[i], curve.var[i]);
     }
