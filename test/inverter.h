@@ -138,6 +138,53 @@ typedef struct {
     uint32_t alarm;                 /* alarm flags */
 } inv_status_t;
 
+/* inverter related model type names */
+#define INV_MODEL_CONTROLS          "controls"
+#define INV_MODEL_FREQ_WATT         "freq_watt"
+#define INV_MODEL_INVERTER          "inverter"
+#define INV_MODEL_SETTINGS          "settings"
+#define INV_MODEL_VOLT_VAR          "volt_var"
+#define INV_MODEL_VOLT_WATT         "volt_watt"
+
+/* inverter related points */
+#define INV_ACT_CRV                 "ActCrv"
+#define INV_CONN                    "Conn"
+#define INV_CONN_RVRT_TMS           "Conn_RvrtTms"
+#define INV_CONN_WIN_TMS            "Conn_WinTms"
+#define INV_CRV_NAM                 "CrvNam"
+#define INV_DEPT_REF                "DeptRef"
+#define INV_EVT1                    "Evt1"
+#define INV_MOD_ENA                 "ModEna"
+#define INV_OUT_PF_SET              "OutPFSet"
+#define INV_OUT_PF_SET_ENA          "OutPFSet_Ena"
+#define INV_OUT_PF_SET_RMP_TMS      "OutPFSet_RmpTms"
+#define INV_OUT_PF_SET_RVRT_TMS     "OutPFSet_RvrtTms"
+#define INV_OUT_PF_SET_WIN_TMS      "OutPFSet_WinTms"
+#define INV_N_CRV                   "NCrv"
+#define INV_N_PT                    "NPt"
+#define INV_PF                      "PF"
+#define INV_READ_ONLY               "ReadOnly"
+#define INV_RMP_DEC_TMM             "RmpDecTmm"
+#define INV_RMP_INC_TMM             "RmpIncTmm"
+#define INV_RMP_PT1_TMS             "RmpPt1Tms"
+#define INV_RMP_P_T1_TMS            "RmpPT1Tms"
+#define INV_RMP_RS_UP               "RmpRsUp"
+#define INV_RMP_TMS                 "RmpTms"
+#define INV_RVRT_TMS                "RvrtTms"
+#define INV_W_GRA                   "WGra"
+#define INV_W                       "W"
+#define INV_WH                      "WH"
+#define INV_WIN_TMS                 "WinTms"
+#define INV_W_Max_LIM_ENA           "WMaxLim_Ena"
+#define INV_W_MAX_LIM_PCT           "WMaxLimPct"
+#define INV_W_MAX_LIM_PCT_RMP_TMS   "WMaxLimPct_RmpTms"
+#define INV_W_MAX_LIM_PCT_RVRT_TMS  "WMaxLimPct_RvrtTms"
+#define INV_W_MAX_LIM_PCT_WIN_TMS   "WMaxLimPct_WinTms"
+#define INV_W_REF                   "WRef"
+#define INV_W_REF_STOP_HZ           "WRefStopHz"
+#define INV_W_REF_STR_HZ            "WRefStrHz"
+
+
 /* volt-var related functions */
 suns_err_t inv_volt_var_disable(suns_device_t *device);
 suns_err_t inv_volt_var_enable(suns_device_t *device, uint16_t act_crv, inv_timers_t *timers);
